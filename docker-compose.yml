@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  couchbase:
+    image: couchbase/server:community
+    container_name: couchbase-mpg
+    restart: always
+    ports:
+      - "8091-8096:8091-8096"
+      - "11210:11210"
+    environment:
+      COUCHBASE_ADMINISTRATOR_USERNAME: admin
+      COUCHBASE_ADMINISTRATOR_PASSWORD: monpetitgazon
+    volumes:
+      - couchbase_data:/opt/couchbase/var
+      - ./init.sh:/docker-entrypoint-initdb.d/init.sh
+    entrypoint: [ "/bin/bash", "/docker-entrypoint-initdb.d/init.sh" ]
+
+  nodejs:
+    build: ./server
+    container_name: mpg-node
+    restart: always
+    depends_on:
+      - couchbase
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=development
+      - DB_HOST=couchbase://couchbase
+      - DB_USERNAME=admin
+      - DB_PASSWORD=monpetitgazon
+    volumes:
+      - ./server:/app
+    working_dir: /app
+    command: [ "npm", "run", "start" ]
+
+volumes:
+  couchbase_data:

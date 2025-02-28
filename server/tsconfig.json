@@ -1,0 +1,32 @@
+{
+    "compilerOptions": {
+        "esModuleInterop": true,
+        "baseUrl": "./src",
+        "paths": {
+            "@commands/*": [
+                "commands/*"
+            ],
+            "@controllers/*": [
+                "controllers/*"
+            ],
+            "@dal/*": [
+                "dal/*"
+            ],
+            "@handlers/*": [
+                "handlers/*"
+            ],
+            "@logger": [
+                "logger/logger"
+            ],
+            "@queries/*": [
+                "queries/*"
+            ],
+            "@repositories/*": [
+                "repositories/*"
+            ],
+            "@routes/*": [
+                "routes/*"
+            ]
+        }
+    }
+}
