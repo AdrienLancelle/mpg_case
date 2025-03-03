@@ -6,6 +6,19 @@ Ce projet utilise Docker Compose pour gérer les services. Le fichier Makefile f
 
 - Docker et Docker Compose doivent être installés sur votre machine.
 - Assurez-vous que le fichier `docker-compose.yml` est présent dans le répertoire racine du projet.
+- Renomme .env.example en .env et remplit les valeurs manquantes avec ette commande : 
+```bash
+mv .env.example .env && echo "COUCHBASE_ADMINISTRATOR_USERNAME=admin
+COUCHBASE_ADMINISTRATOR_PASSWORD=monpetitgazon
+NODE_ENV=development
+DB_HOST=couchbase://couchbase
+DB_USERNAME=admin
+DB_PASSWORD=monpetitgazon
+DB_BUCKET=mpg
+APP_PORT=3000" > .env
+``` 
+
+
 
 ## Commandes Makefile
 
