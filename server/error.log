@@ -1,8 +1,0 @@
-2025-02-28T13:04:57.776Z [ERROR]: Error creating league: document exists
-2025-02-28T13:06:16.554Z [ERROR]: Error updating team name: Impossible de mettre à jour le nom de l'équipe
-2025-02-28T15:07:29.842Z [ERROR]: Error updating team name: authentication failure
-2025-02-28T15:07:29.854Z [ERROR]: Error updating team name: Impossible de mettre à jour le nom de l'équipe
-2025-02-28T15:26:09.398Z [ERROR]: Error retrieving users: authentication failure
-2025-02-28T15:30:47.802Z [ERROR]: Error updating team name: Team ID and new name are required
-2025-02-28T16:08:28.539Z [ERROR]: Error retrieving users: unambiguous timeout
-2025-02-28T16:08:42.812Z [ERROR]: Error retrieving users: unambiguous timeout

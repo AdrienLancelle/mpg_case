@@ -1,0 +1,105 @@
+openapi: 3.0.0
+info:
+  title: API MPG
+  version: 1.0.0
+  description: Documentation de l'API MPG
+
+servers:
+  - url: http://localhost:3000
+    description: Serveur local
+
+paths:
+  /api/leagues:
+    post:
+      summary: Créer une nouvelle ligue
+      description: Ajoute une ligue dans la base de données.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: string
+                  example: "mpg_league_4"
+                name:
+                  type: string
+                  example: "Ligue des champions"
+                description:
+                  type: string
+                  example: "Une super ligue"
+                adminId:
+                  type: string
+                  example: "user_1"
+      responses:
+        201:
+          description: Ligue créée
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Ligue créée"
+        400:
+          description: Erreur de validation
+  
+  /api/users/{leagueId}:
+    get:
+      summary: Récupérer les utilisateurs d'une ligue
+      description: Renvoie les noms des utilisateurs présents dans une ligue.
+      parameters:
+        - name: leagueId
+          in: path
+          required: true
+          schema:
+            type: string
+          example: "mpg_league_1"
+      responses:
+        200:
+          description: Liste des utilisateurs de la ligue
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  users:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        name:
+                          type: string
+                          example: "Greg"
+        404:
+          description: Ligue non trouvée
+  
+  /api/teams/{teamId}/name:
+    patch:
+      summary: Modifier le nom d'une équipe
+      description: Met à jour le nom d'une équipe spécifique.
+      parameters:
+        - name: teamId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: "Nouvelle Équipe"
+      responses:
+        200:
+          description: Nom de l'équipe mis à jour
+        400:
+          description: Erreur de validation
+        404:
+          description: Équipe non trouvée

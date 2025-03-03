@@ -1,10 +1,10 @@
-import { CreateLeagueCommand } from "@commands/CreateLeagueCommand";
-import { LeagueRepository } from "@repositories/LeagueRepository";
+import {CreateLeagueCommand} from '@commands/CreateLeagueCommand';
+import {LeagueRepository} from '@repositories/LeagueRepository';
 
 export class CreateLeagueCommandHandler {
-    constructor(private readonly leagueRepository: LeagueRepository) { }
+  constructor(private readonly leagueRepository: LeagueRepository) {}
 
-    async handle(command: CreateLeagueCommand) {
-        return this.leagueRepository.createLeague(command);
-    }
+  async handle(command: CreateLeagueCommand) {
+    return this.leagueRepository.createLeague(command);
+  }
 }

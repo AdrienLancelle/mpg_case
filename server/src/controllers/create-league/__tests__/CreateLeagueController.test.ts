@@ -1,97 +1,85 @@
-import { CreateLeagueController } from '../CreateLeagueController';
-import { CreateLeagueCommandHandler } from '@handlers/CreateLeagueCommandHandler';
-import { Request, Response } from 'express';
-import { CreateLeagueCommand } from '@commands/CreateLeagueCommand';
+import {CreateLeagueController} from '../CreateLeagueController';
+import {CreateLeagueCommandHandler} from '@handlers/CreateLeagueCommandHandler';
+import {Request, Response} from 'express';
+import {CreateLeagueCommand} from '@commands/CreateLeagueCommand';
+import {CreateLeagueInboundDto} from '../dto/CreateLeagueInboundDto';
+import {validate} from 'class-validator';
 
-// Mock the CommandHandler
 jest.mock('@handlers/CreateLeagueCommandHandler');
+jest.mock('class-validator', () => ({
+  validate: jest.fn(),
+  IsString: jest.fn(),
+  IsNotEmpty: jest.fn(),
+}));
 
 describe('CreateLeagueController', () => {
-    let controller: CreateLeagueController;
-    let mockCommandHandler: jest.Mocked<CreateLeagueCommandHandler>;
-    let mockRequest: Partial<Request>;
-    let mockResponse: Partial<Response>;
-    let mockJson: jest.Mock;
-    let mockStatus: jest.Mock;
-    let mockSend: jest.Mock;
+  let controller: CreateLeagueController;
+  let mockCommandHandler: jest.Mocked<CreateLeagueCommandHandler>;
+  let mockRequest: Partial<Request>;
+  let mockResponse: Partial<Response>;
+  let mockJson: jest.Mock;
+  let mockStatus: jest.Mock;
 
-    beforeEach(() => {
-        // Reset all mocks
-        mockCommandHandler = new CreateLeagueCommandHandler(null) as jest.Mocked<CreateLeagueCommandHandler>;
-        
-        // Setup response mock methods
-        mockJson = jest.fn();
-        mockStatus = jest.fn().mockReturnThis();
-        mockSend = jest.fn();
-        
-        mockResponse = {
-            status: mockStatus,
-            json: mockJson,
-            send: mockSend,
-        };
+  beforeEach(() => {
+    mockCommandHandler = new CreateLeagueCommandHandler(
+      null,
+    ) as jest.Mocked<CreateLeagueCommandHandler>;
+    mockJson = jest.fn();
+    mockStatus = jest.fn().mockReturnThis();
 
-        // Setup request mock
-        mockRequest = {
-            body: {
-                id: 'league-123',
-                name: 'Test League',
-                description: 'Test Description',
-                adminId: 'admin-123'
-            }
-        };
+    mockResponse = {
+      status: mockStatus,
+      json: mockJson,
+    };
 
-        controller = new CreateLeagueController(mockCommandHandler);
-    });
+    mockRequest = {
+      body: {
+        id: 'league-123',
+        name: 'Test League',
+        description: 'Test Description',
+        adminId: 'admin-123',
+      },
+    };
 
-    it('should create a league successfully', async () => {
-        // Arrange
-        const expectedLeague = {
-            id: 'league-123',
-            name: 'Test League',
-            description: 'Test Description',
-            adminId: 'admin-123'
-        };
-        
-        mockCommandHandler.handle = jest.fn().mockResolvedValue(expectedLeague);
+    controller = new CreateLeagueController(mockCommandHandler);
+  });
 
-        // Act
-        await controller.createLeague(mockRequest as Request, mockResponse as Response);
+  it('should create a league successfully', async () => {
+    const expectedLeague = {
+      id: 'league-123',
+      name: 'Test League',
+      description: 'Test Description',
+      adminId: 'admin-123',
+    };
 
-        // Assert
-        expect(mockCommandHandler.handle).toHaveBeenCalledWith(
-            expect.any(CreateLeagueCommand)
-        );
-        expect(mockStatus).toHaveBeenCalledWith(201);
-        expect(mockJson).toHaveBeenCalledWith(expectedLeague);
-    });
+    (validate as jest.Mock).mockResolvedValue([]);
+    mockCommandHandler.handle.mockResolvedValue(expectedLeague);
 
-    it('should handle errors appropriately', async () => {
-        // Arrange
-        mockCommandHandler.handle = jest.fn().mockRejectedValue(new Error('Database error'));
+    await controller.createLeague(mockRequest as Request, mockResponse as Response);
 
-        // Act
-        await controller.createLeague(mockRequest as Request, mockResponse as Response);
+    expect(validate).toHaveBeenCalledWith(expect.any(CreateLeagueInboundDto));
+    expect(mockCommandHandler.handle).toHaveBeenCalledWith(expect.any(CreateLeagueCommand));
+    expect(mockStatus).toHaveBeenCalledWith(201);
+    expect(mockJson).toHaveBeenCalledWith(expectedLeague);
+  });
 
-        // Assert
-        expect(mockStatus).toHaveBeenCalledWith(500);
-        expect(mockSend).toHaveBeenCalledWith('Erreur lors de la création de la ligue');
-    });
+  it('should return 400 if validation fails', async () => {
+    (validate as jest.Mock).mockResolvedValue([
+      {property: 'name', constraints: {isNotEmpty: 'name should not be empty'}},
+    ]);
 
-    it('should pass correct command data to handler', async () => {
-        // Arrange
-        mockCommandHandler.handle = jest.fn().mockResolvedValue({});
+    await controller.createLeague(mockRequest as Request, mockResponse as Response);
 
-        // Act
-        await controller.createLeague(mockRequest as Request, mockResponse as Response);
+    expect(mockStatus).toHaveBeenCalledWith(400);
+    expect(mockJson).toHaveBeenCalledWith({error: 'Invalid input', details: expect.any(Array)});
+  });
 
-        // Assert
-        expect(mockCommandHandler.handle).toHaveBeenCalledWith(
-            expect.objectContaining({
-                id: 'league-123',
-                name: 'Test League',
-                description: 'Test Description',
-                adminId: 'admin-123'
-            })
-        );
-    });
-}); 
+  it('should handle unexpected errors', async () => {
+    (validate as jest.Mock).mockRejectedValue(new Error('Unexpected error'));
+
+    await controller.createLeague(mockRequest as Request, mockResponse as Response);
+
+    expect(mockStatus).toHaveBeenCalledWith(500);
+    expect(mockJson).toHaveBeenCalledWith({error: 'Internal server error'});
+  });
+});
